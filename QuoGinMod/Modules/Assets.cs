@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using RoR2.UI;
 using System;
 using Quo_Gin;
+using System.Net.Mail;
+using UnityEngine.AddressableAssets;
 
 namespace Quo_Gin.Modules
 {
@@ -20,6 +22,8 @@ namespace Quo_Gin.Modules
 
         internal static GameObject bombExplosionEffect;
 
+        internal static GameObject lineVisualizer;
+        internal static GameObject explosionvisualizer;
         // networked hit sounds
         internal static NetworkSoundEventDef swordHitSoundEvent;
         #endregion
@@ -107,6 +111,10 @@ namespace Quo_Gin.Modules
 
             swordSwingEffect = LoadEffect("HenrySwordSwingEffect", true);
             swordHitImpactEffect = LoadEffect("ImpactHenrySlash");
+
+
+            lineVisualizer = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Common/VFX/BasicThrowableVisualizer.prefab").WaitForCompletion();
+            explosionvisualizer = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Huntress/HuntressArrowRainIndicator.prefab").WaitForCompletion();
         }
 
         private static GameObject CreateTracer(string originalTracerName, string newTracerName)

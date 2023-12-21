@@ -1,4 +1,5 @@
 ﻿using BepInEx.Configuration;
+using Quo_Gin.Componenets;
 using Quo_Gin.Modules.Characters;
 using RoR2;
 using RoR2.Skills;
@@ -69,6 +70,8 @@ namespace Quo_Gin.Modules.Survivors
         public override void InitializeCharacter()
         {
             base.InitializeCharacter();
+
+            this.bodyPrefab.AddComponent<PhenoixProtocolBuff>();  
         }
 
         public override void InitializeUnlockables()
@@ -115,7 +118,7 @@ namespace Quo_Gin.Modules.Survivors
                 rechargeStock = 12,
                 requiredStock = 1,
                 stockToConsume = 1,
-                keywordTokens = new string[] { "KEYWORD_AGILE" }
+                keywordTokens = new string[] { Tokens.prefix + "KEYWORD_SCORCH", Tokens.prefix + "KEYWORD_MARK" }
             });
 
 
@@ -132,7 +135,7 @@ namespace Quo_Gin.Modules.Survivors
                 activationState = new EntityStates.SerializableEntityStateType(typeof(SkillStates.SolarGrenade)),
                 activationStateMachineName = "Weapon",
                 baseMaxStock = 1,
-                baseRechargeInterval = 20f,
+                baseRechargeInterval = 5f,
                 beginSkillCooldownOnSkillEnd = false,
                 canceledFromSprinting = false,
                 forceSprintDuringState = false,
@@ -145,7 +148,7 @@ namespace Quo_Gin.Modules.Survivors
                 rechargeStock = 1,
                 requiredStock = 1,
                 stockToConsume = 1,
-                keywordTokens = new string[] { "KEYWORD_AGILE" }
+                keywordTokens = new string[] { Tokens.prefix + "KEYWORD_SCORCH" }
             });
 
             SkillDef celestialFireSkillDef = Modules.Skills.CreateSkillDef(new SkillDefInfo
@@ -170,7 +173,7 @@ namespace Quo_Gin.Modules.Survivors
                 rechargeStock = 1,
                 requiredStock = 1,
                 stockToConsume = 1,
-                keywordTokens = new string[] { }
+                keywordTokens = new string[] { Tokens.prefix + "KEYWORD_SCORCH" }
             });
 
             Modules.Skills.AddSecondarySkills(bodyPrefab, solarGrenadeSkillDef);
@@ -199,7 +202,8 @@ namespace Quo_Gin.Modules.Survivors
                 cancelSprintingOnActivation = false,
                 rechargeStock = 1,
                 requiredStock = 1,
-                stockToConsume = 1
+                stockToConsume = 1,
+                keywordTokens = new string[] { Tokens.prefix + "KEYWORD_SCORCH" }
             });
             SkillDef eagerEdgeSkillDef = Modules.Skills.CreateSkillDef(new SkillDefInfo
             {
@@ -236,10 +240,10 @@ namespace Quo_Gin.Modules.Survivors
                 skillNameToken = prefix + "SPECIAL_WELL_OF_RADIANCE_NAME",
                 skillDescriptionToken = prefix + "SPECIAL_WELL_OF_RADIANCE_DESCRIPTION",
                 skillIcon = Modules.Assets.mainAssetBundle.LoadAsset<Sprite>("texSpecialIcon"),
-                activationState = new EntityStates.SerializableEntityStateType(typeof(SkillStates.WellOfradiance)),
+                activationState = new EntityStates.SerializableEntityStateType(typeof(SkillStates.WellOfRadiance)),
                 activationStateMachineName = "Body",
                 baseMaxStock = 1,
-                baseRechargeInterval = 40f,
+                baseRechargeInterval = 30f,
                 beginSkillCooldownOnSkillEnd = false,
                 canceledFromSprinting = false,
                 forceSprintDuringState = false,
@@ -251,7 +255,8 @@ namespace Quo_Gin.Modules.Survivors
                 cancelSprintingOnActivation = true,
                 rechargeStock = 1,
                 requiredStock = 1,
-                stockToConsume = 1
+                stockToConsume = 1,
+                keywordTokens = new string[] { Tokens.prefix + "KEYWORD_SCORCH", Tokens.prefix + "KEYWORD_WELL" }
             });
 
             Modules.Skills.AddSpecialSkills(bodyPrefab, wellOfRadianceSkillDef);

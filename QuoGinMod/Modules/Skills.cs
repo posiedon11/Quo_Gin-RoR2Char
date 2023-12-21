@@ -26,6 +26,7 @@ namespace Quo_Gin.Modules
             skillLocator.passiveSkill.enabled = true;
             skillLocator.passiveSkill.skillNameToken = Tokens.prefix + "PASSIVE_PHOENIX_PROTOCOL_NAME";
             skillLocator.passiveSkill.skillDescriptionToken = Tokens.prefix + "PASSIVE_PHEONIX_PROTOCOL_DESCRIPTION";
+            skillLocator.passiveSkill.keywordToken =Tokens.prefix + "KEYWORD_WELL";
 
             skillLocator.primary = CreateGenericSkillWithSkillFamily(targetPrefab, "Primary");
             skillLocator.secondary = CreateGenericSkillWithSkillFamily(targetPrefab, "Secondary");

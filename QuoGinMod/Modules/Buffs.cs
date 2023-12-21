@@ -13,7 +13,11 @@ namespace Quo_Gin.Modules
         internal static BuffDef pheonixProtocolBuff;
 
         internal static BuffDef sunShotDebuff;
+        internal static BuffDef ascendingDawnJumpBuff;
+        internal static BuffDef ascendingDawnKillBuff;
 
+        internal static BuffDef wellOfRadianceBuff;
+        internal static BuffDef scorchDebuff;
         internal static void RegisterBuffs()
         {
             armorBuff = AddNewBuff("HenryArmorBuff",
@@ -23,15 +27,37 @@ namespace Quo_Gin.Modules
                 false);
             pheonixProtocolBuff = AddNewBuff("QuoGinPheonixProtocolBuff",
                 LegacyResourcesAPI.Load<BuffDef>("BuffDefs/HiddenInvincibility").iconSprite,
-                Color.white,
+                Color.yellow,
                 false,
                 false);
 
             sunShotDebuff = AddNewBuff("QuoGinSunShotDebuff",
                 LegacyResourcesAPI.Load<BuffDef>("BuffDefs/HiddenInvincibility").iconSprite,
-                Color.white,
+                Color.black,
                 false,
                 true);
+            ascendingDawnJumpBuff = AddNewBuff("QuoGinAscendingDawnJumpBuff",
+                LegacyResourcesAPI.Load<BuffDef>("BuffDefs/HiddenInvincibility").iconSprite,
+                Color.green,
+                false,
+                false);
+            ascendingDawnKillBuff = AddNewBuff("QuoGinAscendingDawnKillBuff",
+                LegacyResourcesAPI.Load<BuffDef>("BuffDefs/HiddenInvincibility").iconSprite,
+                Color.blue,
+                false,
+                false);
+            scorchDebuff = AddNewBuff("QuoGinScorchDeBuff",
+                LegacyResourcesAPI.Load<BuffDef>("BuffDefs/HiddenInvincibility").iconSprite,
+                Color.red,
+                true,
+                true);
+            wellOfRadianceBuff = AddNewBuff("QuoGinWellBuff",
+                LegacyResourcesAPI.Load<BuffDef>("BuffDefs/HiddenInvincibility").iconSprite,
+                Color.cyan,
+                false,
+                false);
+
+
         }
 
         // simple helper method

@@ -14,7 +14,7 @@ namespace Quo_Gin.Modules
 
             Content.AddEntityState(typeof(AscendingDawn));
 
-            Content.AddEntityState(typeof(WellOfradiance));
+            Content.AddEntityState(typeof(WellOfRadiance));
 
             Content.AddEntityState(typeof(SolarGrenade));
         }

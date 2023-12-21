@@ -6,105 +6,185 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using UnityEngine;
+using EntityStates.Huntress;
+using EntityStates.Croco;
+using EntityStates.Mage;
+using Quo_Gin.Modules;
+using RoR2.Projectile;
+using R2API;
 
 namespace Quo_Gin.SkillStates
 {
-    internal class WellOfradiance : BaseSkillState
+    internal class WellOfRadiance : BaseSkillState
     {
-        public static float damageCoefficient = Modules.StaticValues.sunShotDamageCoefficient;
-        public static float procCoefficient = 1f;
-        public static float baseDuration = 0.25f;
-        public static float force = 800f;
-        public static float recoil = 6f;
-        public static float range = 256f;
-        public static GameObject tracerEffectPrefab = RoR2.LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/Tracers/TracerGoldGat");
+        public static float landingDamageCoefficient = 20f;
+        public static float damageBuffBonusDamage = .5f;
+        public static float landingRadius = 40f;
+        public static float landingForce = 1000f;
+        public static float healingCoefficient = .5f;
+        public static float healingPulseBaseFrequency = 2f;
+        public static float healingPulseSpeedStat = 1f;
+        public static float wellDuration = 30f;
+        public static float wellBuffduration = 2f;
 
-        private float duration;
-        private float fireTime;
-        private bool hasFired;
-        private string muzzleString;
+        private GameObject wellPrefab;
+        private bool hasDroppped = false;
+        private static float dropForce = 150f;
+        private Ray downRay;
+        private Transform landingIndicator;
+        private static float stallDuration = .5f;
+
+
 
         public override void OnEnter()
         {
             base.OnEnter();
-            this.duration = SunShot.baseDuration / this.attackSpeedStat;
-            this.fireTime = 0.2f * this.duration;
-            base.characterBody.SetAimTimer(2f);
-            this.muzzleString = "Muzzle";
+            this.wellPrefab = Projectiles.wellOfRadiancePrefab;
+            Log.Debug("Entering Well of Radiance");
+            healingPulseSpeedStat = base.attackSpeedStat;
+            base.characterMotor.Motor.ForceUnground();
+            base.characterMotor.velocity = Vector3.zero;
+            base.characterBody.bodyFlags |= CharacterBody.BodyFlags.IgnoreFallDamage;
+            base.characterMotor.Motor.RebuildCollidableLayers();
 
-            base.PlayAnimation("LeftArm, Override", "ShootGun", "ShootGun.playbackRate", 1.8f);
         }
 
-        public override void OnExit()
+        public override void Update()
         {
-            base.OnExit();
-        }
-
-        private void Fire()
-        {
-            if (!this.hasFired)
+            base.Update();
+            if (this.landingIndicator)
             {
-                this.hasFired = true;
-
-                base.characterBody.AddSpreadBloom(1.5f);
-                EffectManager.SimpleMuzzleFlash(EntityStates.Commando.CommandoWeapon.FirePistol2.muzzleEffectPrefab, base.gameObject, this.muzzleString, false);
-                Util.PlaySound("HenryShootPistol", base.gameObject);
-
-                if (base.isAuthority)
-                {
-                    Ray aimRay = base.GetAimRay();
-                    base.AddRecoil(-1f * SunShot.recoil, -2f * SunShot.recoil, -0.5f * SunShot.recoil, 0.5f * SunShot.recoil);
-
-                    new BulletAttack
-                    {
-                        bulletCount = 1,
-                        aimVector = aimRay.direction,
-                        origin = aimRay.origin,
-                        damage = SunShot.damageCoefficient * this.damageStat,
-                        damageColorIndex = DamageColorIndex.Default,
-                        damageType = DamageType.Generic,
-                        falloffModel = BulletAttack.FalloffModel.DefaultBullet,
-                        maxDistance = SunShot.range,
-                        force = SunShot.force,
-                        hitMask = LayerIndex.CommonMasks.bullet,
-                        minSpread = 0f,
-                        maxSpread = 0f,
-                        isCrit = base.RollCrit(),
-                        owner = base.gameObject,
-                        muzzleName = muzzleString,
-                        smartCollision = false,
-                        procChainMask = default(ProcChainMask),
-                        procCoefficient = procCoefficient,
-                        radius = 0.75f,
-                        sniper = false,
-                        stopperMask = LayerIndex.CommonMasks.bullet,
-                        weapon = null,
-                        tracerEffectPrefab = SunShot.tracerEffectPrefab,
-                        spreadPitchScale = 0f,
-                        spreadYawScale = 0f,
-                        queryTriggerInteraction = QueryTriggerInteraction.UseGlobal,
-                        hitEffectPrefab = EntityStates.Commando.CommandoWeapon.FirePistol2.hitEffectPrefab,
-                    }.Fire();
-                }
+                this.updateLandingIndicator();
             }
         }
-
         public override void FixedUpdate()
         {
             base.FixedUpdate();
-
-            if (base.fixedAge >= this.fireTime)
+            if (!this.hasDroppped)
             {
-                this.Fire();
+                if (base.characterMotor.velocity.y < .2f)
+                {
+                    base.characterMotor.velocity.y += .2f;
+                }
             }
 
-            if (base.fixedAge >= this.duration && base.isAuthority)
+            if (base.fixedAge >= .2f * stallDuration && this.landingIndicator)
             {
+                this.createIndicator();
+            }
+            if (base.fixedAge >= stallDuration && !this.hasDroppped)
+            {
+                this.startDrop();
+            }
+            if (this.hasDroppped && base.isAuthority && !base.characterMotor.disableAirControlUntilCollision)
+            {
+                this.landingImpact();
                 this.outer.SetNextStateToMain();
-                return;
             }
+
+        }
+        public override void OnExit()
+        {
+            base.OnExit();
+
+            if (this.landingIndicator) 
+            {
+                EntityState.Destroy(this.landingIndicator);
+            }
+            base.characterBody.bodyFlags &= ~CharacterBody.BodyFlags.IgnoreFallDamage;
+
+            base.gameObject.layer = LayerIndex.defaultLayer.intVal;
+            base.characterMotor.Motor.RebuildCollidableLayers();
         }
 
+        private void createWell()
+        {
+
+            if (    base.isAuthority && this.wellPrefab)
+            {
+                Log.Debug("Creating Well");
+                FireProjectileInfo fireProjectileInfo = new FireProjectileInfo()
+                {
+                    projectilePrefab = this.wellPrefab,
+                    position = base.characterBody.footPosition,
+                    owner = base.gameObject,
+                    damage = this.damageStat,
+                    crit = false
+                };
+
+                ProjectileManager.instance.FireProjectile(fireProjectileInfo);
+            }
+        }
+        private void landingImpact()
+        {
+            Log.Debug("Landing");
+            createWell();
+            base.characterMotor.velocity = Vector3.one;
+            BlastAttack blastAttack = new BlastAttack()
+            {
+                radius = landingRadius,
+                procCoefficient = 1f,
+                position = base.characterBody.footPosition,
+                attacker = base.gameObject,
+                crit = base.RollCrit(),
+                baseDamage = base.characterBody.damage * landingDamageCoefficient,
+                falloffModel = BlastAttack.FalloffModel.None,
+                baseForce = landingForce,
+                teamIndex = base.gameObject.GetComponent<TeamIndex>(),
+                damageType = DamageType.IgniteOnHit,
+                attackerFiltering = AttackerFiltering.NeverHitSelf
+            };
+            EffectManager.SpawnEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/OmniEffect/OmniExplosionVFXQuick"), new EffectData
+            {
+                origin = base.characterBody.footPosition,
+                scale = landingRadius,
+                rotation = Util.QuaternionSafeLookRotation(Vector3.zero)
+            }, true);
+            DamageAPI.AddModdedDamageType(blastAttack, Quo_GinPlugin.ScorchMark);
+            blastAttack.Fire();
+            
+            
+        }
+        private void startDrop()
+        {
+            Log.Debug("Dropping");
+            this.hasDroppped = true;
+            base.characterMotor.disableAirControlUntilCollision = true;
+            base.characterMotor.velocity.y = -dropForce;
+        }
+
+        private void createIndicator()
+        {
+            if ( ArrowRain.areaIndicatorPrefab)
+            {
+                this.downRay = new Ray()
+                {
+                    direction = Vector3.down,
+                    origin = base.transform.position
+                };
+
+                this.landingIndicator = UnityEngine.Object.Instantiate<GameObject>(ArrowRain.areaIndicatorPrefab).transform;
+                this.landingIndicator.localScale = Vector3.one * landingRadius;
+            }
+        }
+        private void updateLandingIndicator()
+        {
+            if (this.landingIndicator)
+            {
+                float maxdistance = 250f;
+                this.downRay = new Ray()
+                {
+                    direction = Vector3.down,
+                    origin = base.transform.position
+                };
+                RaycastHit raycastHit;
+                if(Physics.Raycast(this.downRay, out raycastHit, maxdistance, LayerIndex.world.mask))
+                {
+                    this.landingIndicator.transform.position = raycastHit.point;
+                    this.landingIndicator.transform.up = raycastHit.normal;
+                }
+            }
+        }
         public override InterruptPriority GetMinimumInterruptPriority()
         {
             return InterruptPriority.PrioritySkill;

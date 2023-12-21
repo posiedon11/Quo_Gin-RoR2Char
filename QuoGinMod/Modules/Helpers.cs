@@ -6,6 +6,7 @@ namespace Quo_Gin.Modules
     internal static class Helpers
     {
         internal const string agilePrefix = "<style=cIsUtility>Agile.</style> ";
+        internal const string markerPrefix = "<style=cIsUtility>Agile.</style> ";
 
         internal static string ScepterDescription(string desc)
         {
