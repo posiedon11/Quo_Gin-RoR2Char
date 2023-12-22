@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text;
 using UnityEngine;
 using static RoR2.BulletAttack;
+
 namespace Quo_Gin.SkillStates
 {
     internal class SunShot :GenericProjectileBaseState

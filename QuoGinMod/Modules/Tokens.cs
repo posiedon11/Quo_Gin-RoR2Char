@@ -83,7 +83,7 @@ namespace Quo_Gin.Modules
             LanguageAPI.Add(prefix + "UTILITY_" + "ASCENDING_DAWN" + "_NAME", "Ascending dawn");
             LanguageAPI.Add(prefix + "UTILITY_" + "ASCENDING_DAWN" + "_DESCRIPTION",
                 $"Boosts high into the air, "+ scorchStyle+ $"ing all nearby enemies for <style=cIsDamage>{100f * AscendingDawn.damageCoefficient}% damage</style>. " + Environment.NewLine +
-                $"Kills made while Ascending grants a {AscendingDawn.killSpeedCoefficient}% speed buff for {AscendingDawn.killSpeedDuration}s." + Environment.NewLine +
+                $"Kills made while Ascending grants a {100f *AscendingDawn.killSpeedCoefficient}% speed buff for {AscendingDawn.killSpeedDuration}s." + Environment.NewLine +
                 $"Refunds Secondary Ability on use.");
 
             LanguageAPI.Add(prefix + "UTILITY_" + "EAGER_EDGE" + "_NAME", "Eager Edge");

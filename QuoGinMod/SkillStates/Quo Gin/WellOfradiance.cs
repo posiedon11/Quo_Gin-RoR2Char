@@ -46,6 +46,8 @@ namespace Quo_Gin.SkillStates
             base.characterMotor.velocity = Vector3.zero;
             base.characterBody.bodyFlags |= CharacterBody.BodyFlags.IgnoreFallDamage;
             base.characterMotor.Motor.RebuildCollidableLayers();
+            //base.characterMotor.rootMotion = Vector3.up * .2f;
+            base.characterMotor.rootMotion += Vector3.up * (0.2f * this.moveSpeedStat * FlyUpState.speedCoefficientCurve.Evaluate(base.fixedAge / stallDuration) * Time.fixedDeltaTime);
 
         }
 
@@ -62,10 +64,20 @@ namespace Quo_Gin.SkillStates
             base.FixedUpdate();
             if (!this.hasDroppped)
             {
-                if (base.characterMotor.velocity.y < .2f)
+                //if(base.fixedAge < .2f)
+                //{
+                    //base.characterMotor.rootMotion += Vector3.up * (0.2f * this.moveSpeedStat * FlyUpState.speedCoefficientCurve.Evaluate(base.fixedAge / stallDuration) * Time.fixedDeltaTime);
+              //  }
+                 if (base.fixedAge < stallDuration)
                 {
-                    base.characterMotor.velocity.y += .2f;
+                    if (base.characterMotor.velocity.y < .2f)
+                    {
+                        Log.Debug("Stalling");
+                        base.characterMotor.velocity.y += .2f;
+                    }
                 }
+               //base.characterMotor.rootMotion += Vector3.up * (0.2f * this.moveSpeedStat * FlyUpState.speedCoefficientCurve.Evaluate(base.fixedAge / stallDuration) * Time.fixedDeltaTime);
+                
             }
 
             if (base.fixedAge >= .2f * stallDuration && this.landingIndicator)
@@ -150,7 +162,13 @@ namespace Quo_Gin.SkillStates
             Log.Debug("Dropping");
             this.hasDroppped = true;
             base.characterMotor.disableAirControlUntilCollision = true;
-            base.characterMotor.velocity.y = -dropForce;
+            if (!base.characterMotor.isGrounded)
+            {
+                Log.Debug("Char isnt grounded");
+                base.characterMotor.velocity.y = -dropForce;
+            }
+            else
+                Log.Debug("Char isnt grounded");
         }
 
         private void createIndicator()

@@ -16,9 +16,11 @@ namespace Quo_Gin.Modules
         internal static GameObject solarGrenadePulsePrefab;
         internal static GameObject wellOfRadiancePrefab;
         internal static GameObject sunShotPrefab;
+        internal static GameObject celestialFirePrefab;
         internal static void RegisterProjectiles()
         {
             CreateBomb();
+            creatCelestialFire();
             createWellOfRadiance();
             createSolarPulse();
             createSolarGrenade();
@@ -28,6 +30,7 @@ namespace Quo_Gin.Modules
             AddProjectile(bombPrefab);
             AddProjectile(solarGrenadePrefab);
             AddProjectile(solarGrenadePulsePrefab);
+            AddProjectile(celestialFirePrefab);
 
         }
 
@@ -36,20 +39,65 @@ namespace Quo_Gin.Modules
             Content.AddProjectilePrefab(projectileToAdd);
         }
 
+        private static void creatCelestialFire()
+        {
+            celestialFirePrefab = CloneProjectilePrefab("CommandoGrenadeProjectile", "CelestialFireProjectile");
+            UnityEngine.Object.Destroy(celestialFirePrefab.GetComponent<ProjectileDotZone>());
+
+            celestialFirePrefab.AddComponent<DamageAPI.ModdedDamageTypeHolderComponent>().Add(Quo_GinPlugin.ScorchMark);
+            ProjectileController celestialFireController = celestialFirePrefab.GetComponent<ProjectileController>();
+            celestialFirePrefab.AddComponent<ProjectileSingleTargetImpact>();
+            ProjectileImpactExplosion celestialFireExplosion = celestialFirePrefab.GetComponent<ProjectileImpactExplosion>();
+            ProjectileDamage celestileDamage = celestialFirePrefab.GetComponent<ProjectileDamage>();
+            //ProjectileSingleTargetImpact celestialFireImpact = celestialFirePrefab.GetComponent<ProjectileSingleTargetImpact>();
+            ProjectileSimple celestialProjectile = celestialFirePrefab.GetComponent<ProjectileSimple>();
+
+
+            celestileDamage.damage = 0;
+            // InitializeProjectileSingleTargetImpact(celestialFireImpact);
+            //celestialFireController.ghostPrefab = CreateGhostPrefab("HenryBombGhost");
+            //celestialFireImpact.destroyWhenNotAlive = true;
+            //celestialFireImpact.destroyOnWorld = true;
+            // celestialFireImpact.impactEffect = Assets.bombExplosionEffect;
+
+            //celestialFirePrefab.GetComponent<SphereCollider>().radius = (5);
+            InitializeProjectileSimple(celestialProjectile);
+            celestialProjectile.lifetime = 5f;
+            celestialProjectile.desiredForwardSpeed = CelestialFire.projectileSpeed;
+            // SphereCollider celestialFireCollider = celestialFirePrefab.GetComponent<SphereCollider>();
+
+
+
+
+
+            //InitializeImpactExplosion(celestialFireExplosion);
+
+
+            celestialFireExplosion.impactEffect = Assets.bombExplosionEffect;
+            celestialFireExplosion.timerAfterImpact = true;
+            celestialFireExplosion.lifetime = 5f;
+            celestialFireExplosion.blastRadius = SolarGrenade.damageRadius*3;
+            celestialFireExplosion.lifetimeAfterImpact = 0f;
+
+
+
+        }
         private static void createWellOfRadiance()
         {
             wellOfRadiancePrefab = CloneProjectilePrefab("SporeGrenadeProjectileDotZone", "WellOfradianceZone");
             UnityEngine.Object.Destroy(wellOfRadiancePrefab.GetComponent<ProjectileDotZone>());
             wellOfRadiancePrefab.AddComponent<DestroyOnTimer>().duration = WellOfRadiance.wellDuration;
-            
-           // wellOfRadiancePrefab.transform.localScale = Vector3.one * WellOfRadiance.landingRadius;
-            float range = WellOfRadiance.landingRadius;
-            float temp = 0f;
-            range = Mathf.SmoothDamp(wellOfRadiancePrefab.transform.localScale.x, range, ref temp, .2f);
-            wellOfRadiancePrefab.transform.localScale = Vector3.one * range * 2;
 
 
             BuffWard wellBuff = wellOfRadiancePrefab.AddComponent<BuffWard>();
+            HealingWard wellHeal = wellOfRadiancePrefab.AddComponent<HealingWard>();
+            // wellOfRadiancePrefab.transform.localScale = Vector3.one * WellOfRadiance.landingRadius;
+            float range = WellOfRadiance.landingRadius;
+            float temp = 0f;
+            range = Mathf.SmoothDamp(wellOfRadiancePrefab.transform.localScale.x, range, ref temp, .2f);
+            wellOfRadiancePrefab.transform.localScale = Vector3.one * range * 3;
+
+    
             wellBuff.radius = WellOfRadiance.landingRadius;
             wellBuff.interval = .25f;
             wellBuff.buffDef = Buffs.wellOfRadianceBuff;
@@ -59,7 +107,6 @@ namespace Quo_Gin.Modules
             wellBuff.floorWard= true;
             wellBuff.animateRadius = false;
 
-            HealingWard wellHeal = wellOfRadiancePrefab.AddComponent<HealingWard>();
             wellHeal.radius = WellOfRadiance.landingRadius;
             wellHeal.interval = WellOfRadiance.healingPulseBaseFrequency / WellOfRadiance.healingPulseSpeedStat;
             wellHeal.healFraction = WellOfRadiance.healingCoefficient;
@@ -81,24 +128,20 @@ namespace Quo_Gin.Modules
             Projectiles.solarGrenadePrefab = CloneProjectilePrefab("CommandoGrenadeProjectile", "QuoQinSolarGrenadeProjectile");
 
             ProjectileController solarGrenadeController = solarGrenadePrefab.GetComponent<ProjectileController>();
-            solarGrenadePrefab.GetComponent<TeamFilter>().teamIndex = TeamIndex.Player;
-            solarGrenadeController.ghostPrefab = CreateGhostPrefab("HenryBombGhost");
-           // UnityEngine.Object.Destroy(solarGrenadePulsePrefab.GetComponent<ProjectileDotZone>());
-
             ProjectileDamage solardamage = solarGrenadePrefab.GetComponent<ProjectileDamage>();
-            InitializeProjectilDamage(solardamage);
-
-            
-
-
-            //if (Assets.mainAssetBundle.LoadAsset<GameObject>("SolarGrenadeGhost") != null) solarGrenadeController.ghostPrefab = CreateGhostPrefab("SolarGrenadeGhost");
-            solarGrenadeController.startSound = "";
-
-
             ProjectileImpactExplosion solarGrenadeExplosion = solarGrenadePrefab.GetComponent<ProjectileImpactExplosion>();
-             InitializeImpactExplosion(solarGrenadeExplosion);
-
             solarGrenadePrefab.AddComponent<DamageAPI.ModdedDamageTypeHolderComponent>().Add(Quo_GinPlugin.ScorchMark);
+            solarGrenadePrefab.GetComponent<TeamFilter>().teamIndex = TeamIndex.Player;
+
+
+            solarGrenadeController.ghostPrefab = CreateGhostPrefab("HenryBombGhost");
+
+            // UnityEngine.Object.Destroy(solarGrenadePulsePrefab.GetComponent<ProjectileDotZone>());
+
+            solarGrenadeController.startSound = "";
+            InitializeProjectilDamage(solardamage);
+            InitializeImpactExplosion(solarGrenadeExplosion);
+            //if (Assets.mainAssetBundle.LoadAsset<GameObject>("SolarGrenadeGhost") != null) solarGrenadeController.ghostPrefab = CreateGhostPrefab("SolarGrenadeGhost");
 
             //solarGrenadeExplosion.destroyOnEnemy = true;
             //solarGrenadeExplosion.destroyOnWorld = true;
@@ -111,11 +154,6 @@ namespace Quo_Gin.Modules
             solarGrenadeExplosion.childrenCount = 1;
             solarGrenadeExplosion.childrenProjectilePrefab = Projectiles.solarGrenadePulsePrefab;
             solarGrenadeExplosion.childrenDamageCoefficient = 1f;
-            solarGrenadeExplosion.falloffModel = BlastAttack.FalloffModel.None;
-
-            
-            
-
 
         }   
         private static void createSolarPulse()
@@ -124,12 +162,14 @@ namespace Quo_Gin.Modules
             Projectiles.solarGrenadePulsePrefab = CloneProjectilePrefab("SporeGrenadeProjectileDotZone", "QuoQinSolarGrenadePulse");
             UnityEngine.Object.Destroy(solarGrenadePulsePrefab.GetComponent<ProjectileDotZone>());
             UnityEngine.Object.Destroy(solarGrenadePulsePrefab.transform.GetChild(0).gameObject);
+
             solarGrenadePulsePrefab.AddComponent<DamageAPI.ModdedDamageTypeHolderComponent>().Add(Quo_GinPlugin.ScorchMark);
-            solarGrenadePulsePrefab.AddComponent<SolarGrenadePulseController>();;
+            solarGrenadePulsePrefab.AddComponent<SolarGrenadePulseController>();
+            solarGrenadePulsePrefab.AddComponent<DestroyOnTimer>().duration = SolarGrenade.duration;
             //ProjectileImpactExplosion explosion = solarGrenadePulsePrefab.GetComponent<ProjectileImpactExplosion>();
             //InitializeImpactExplosion(explosion);
             //solarGrenadePulsePrefab.GetComponent<Rigidbody>().velocity = Vector3.zero;
-            solarGrenadePulsePrefab.AddComponent<DestroyOnTimer>().duration = SolarGrenade.duration;
+
             //solarGrenadePulsePrefab.transform.parent = solarGrenadePulsePrefab.transform;b);
 
 
@@ -158,7 +198,27 @@ namespace Quo_Gin.Modules
 
         }
 
-
+        private static void InitializeProjectileSimple(ProjectileSimple projectileSimple)
+        {
+            projectileSimple.lifetime = 5f;
+            projectileSimple.desiredForwardSpeed = 100f;
+            projectileSimple.updateAfterFiring = false;
+            projectileSimple.enableVelocityOverLifetime = false;
+            projectileSimple.velocityOverLifetime = UnityEngine.AnimationCurve.Constant(0,3,1);
+            projectileSimple.oscillate = false;
+            projectileSimple.oscillateMagnitude = 20;
+            projectileSimple.oscillateSpeed = 0;
+            projectileSimple.oscillationStopwatch = 0;
+            projectileSimple.stopwatch = 0;
+            projectileSimple.deltaHeight = 0;
+        }
+        private static void InitializeProjectileSingleTargetImpact (ProjectileSingleTargetImpact projectileSingelTarget)
+        {
+            projectileSingelTarget.alive= true;
+            projectileSingelTarget.destroyOnWorld = true;
+            projectileSingelTarget.destroyWhenNotAlive = true;
+            projectileSingelTarget.impactEffect = LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/OmniEffect/OmniExplosionVFXQuick");
+        }
         private static void InitializeProjectilDamage(ProjectileDamage projectileDamage) 
         {
             projectileDamage.crit = false;
