@@ -73,6 +73,7 @@ namespace Quo_Gin.SkillStates
             }, true);
             Log.Debug("Creating Explosion For dawn");
             DamageAPI.AddModdedDamageType(this.blastAttack, Quo_GinPlugin.ScorchMark);
+
             this.blastAttack.Fire();
             if (NetworkServer.active)
             {

@@ -37,6 +37,7 @@ namespace  Quo_Gin
         public const string MODUID = "com.posiedon11.Quo-Gin";
         public const string MODNAME = "Quo-Gin";
         public const string MODVERSION = "1.0.0";
+        
 
         // a prefix for name tokens to prevent conflicts- please capitalize all name tokens for convention
         public const string DEVELOPER_PREFIX = "POSIEDON11";
@@ -86,7 +87,6 @@ namespace  Quo_Gin
             new ScorchDebuff().Hook_ScorchDebuff();
             new SunShotMark().Hook_SunShot();
             new AscendingDawnBuff().Hook_AscendingDawn();
-
         }
 
         private void CharacterBody_RecalculateStats(On.RoR2.CharacterBody.orig_RecalculateStats orig, CharacterBody self)

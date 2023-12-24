@@ -47,8 +47,8 @@ namespace Quo_Gin.SkillStates
             base.characterBody.bodyFlags |= CharacterBody.BodyFlags.IgnoreFallDamage;
             base.characterMotor.Motor.RebuildCollidableLayers();
             //base.characterMotor.rootMotion = Vector3.up * .2f;
-            base.characterMotor.rootMotion += Vector3.up * (0.2f * this.moveSpeedStat * FlyUpState.speedCoefficientCurve.Evaluate(base.fixedAge / stallDuration) * Time.fixedDeltaTime);
-
+            //base.characterMotor.rootMotion += Vector3.up * (0.2f * this.moveSpeedStat * FlyUpState.speedCoefficientCurve.Evaluate(base.fixedAge / stallDuration) * Time.fixedDeltaTime);
+            base.SmallHop(characterMotor, 3);
         }
 
         public override void Update()

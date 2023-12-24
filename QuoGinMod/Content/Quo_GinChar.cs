@@ -71,7 +71,7 @@ namespace Quo_Gin.Modules.Survivors
         {
             base.InitializeCharacter();
 
-            this.bodyPrefab.AddComponent<PhenoixProtocolBuff>();  
+
         }
 
         public override void InitializeUnlockables()
@@ -91,6 +91,10 @@ namespace Quo_Gin.Modules.Survivors
 
         public override void InitializeSkills()
         {
+            //add The passives
+            this.bodyPrefab.AddComponent<PhenoixProtocolBuff>();
+
+
             Modules.Skills.CreateSkillFamilies(bodyPrefab);
             string prefix = Quo_GinPlugin.DEVELOPER_PREFIX + "_QUO_GIN_BODY_";
 
@@ -211,7 +215,7 @@ namespace Quo_Gin.Modules.Survivors
                 skillNameToken = prefix + "UTILITY_EAGER_EDGE_NAME",
                 skillDescriptionToken = prefix + "UTILITY_EAGER_EDGE_DESCRIPTION",
                 skillIcon = Modules.Assets.mainAssetBundle.LoadAsset<Sprite>("texUtilityIcon"),
-                activationState = new EntityStates.SerializableEntityStateType(typeof(SkillStates.AscendingDawn)),
+                activationState = new EntityStates.SerializableEntityStateType(typeof(SkillStates.EagerEdgePrep)),
                 activationStateMachineName = "Body",
                 baseMaxStock = 1,
                 baseRechargeInterval = 10f,
@@ -219,7 +223,7 @@ namespace Quo_Gin.Modules.Survivors
                 canceledFromSprinting = false,
                 forceSprintDuringState = true,
                 fullRestockOnAssign = true,
-                interruptPriority = EntityStates.InterruptPriority.PrioritySkill,
+                interruptPriority = EntityStates.InterruptPriority.Skill,
                 resetCooldownTimerOnUse = false,
                 isCombatSkill = false,
                 mustKeyPress = false,
