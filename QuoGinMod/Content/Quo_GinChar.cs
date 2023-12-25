@@ -35,7 +35,6 @@ namespace Quo_Gin.Modules.Survivors
             maxHealth = 110f,
             healthRegen = 30f,
             armor = 30f,
-
             jumpCount = 4,
         };
 
@@ -82,18 +81,36 @@ namespace Quo_Gin.Modules.Survivors
 
         public override void InitializeHitboxes()
         {
+            //Log.Debug("Finding Child");
             ChildLocator childLocator = bodyPrefab.GetComponentInChildren<ChildLocator>();
+            ////Log.Debug("Finding Hitbox");
+            //HitBoxGroup EagerEdgeHitBoxGroup = bodyPrefab.AddComponent<HitBoxGroup>();
+            //GameObject EagerEdgeHitBoxObject = childLocator.FindChild("SwordHitbox").gameObject;
+            //EagerEdgeHitBoxObject.transform.localScale = Vector3.one * 20f;
+            //EagerEdgeHitBoxObject.transform.localPosition = new Vector3(0f, 2f, 2f);
+            ////Log.Debug("Other");
+            //HitBox EagerEdgeHitBox = EagerEdgeHitBoxObject.AddComponent<HitBox>();
+            //EagerEdgeHitBoxObject.layer = LayerIndex.projectile.intVal;
+            //EagerEdgeHitBoxGroup.hitBoxes = new HitBox[]
+            //{
+            //    EagerEdgeHitBox
+            //};
+            //EagerEdgeHitBoxGroup.name = "EagerEdge";
+
 
             //example of how to create a hitbox
-            //Transform hitboxTransform = childLocator.FindChild("SwordHitbox");
-            //Modules.Prefabs.SetupHitbox(prefabCharacterModel.gameObject, hitboxTransform, "Sword");
+            Transform hitboxTransform = childLocator.FindChild("SwordHitbox");
+            hitboxTransform.transform.localScale = Vector3.one * 15f;
+            Modules.Prefabs.SetupHitbox(prefabCharacterModel.gameObject, hitboxTransform, "EagerEdge");
         }
 
         public override void InitializeSkills()
         {
             //add The passives
-            this.bodyPrefab.AddComponent<PhenoixProtocolBuff>();
-
+            this.bodyPrefab.AddComponent<PhoenixProtocolBuff>();
+            this.bodyPrefab.AddComponent<ScorchDebuff>().Hook_ScorchDebuff();
+            this.bodyPrefab.AddComponent<SunShotMark>().Hook_SunShot();
+            this.bodyPrefab.AddComponent<AscendingDawnBuff>().Hook_AscendingDawn();
 
             Modules.Skills.CreateSkillFamilies(bodyPrefab);
             string prefix = Quo_GinPlugin.DEVELOPER_PREFIX + "_QUO_GIN_BODY_";
@@ -218,7 +235,7 @@ namespace Quo_Gin.Modules.Survivors
                 activationState = new EntityStates.SerializableEntityStateType(typeof(SkillStates.EagerEdgePrep)),
                 activationStateMachineName = "Body",
                 baseMaxStock = 1,
-                baseRechargeInterval = 10f,
+                baseRechargeInterval = 5f,
                 beginSkillCooldownOnSkillEnd = false,
                 canceledFromSprinting = false,
                 forceSprintDuringState = true,

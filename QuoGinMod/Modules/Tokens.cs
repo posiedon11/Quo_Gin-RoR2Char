@@ -56,8 +56,8 @@ namespace Quo_Gin.Modules
             #region Passive
             LanguageAPI.Add(prefix + "PASSIVE_PHOENIX_PROTOCOL_NAME", "Phoenix Protocol");
             LanguageAPI.Add(prefix + "PASSIVE_PHEONIX_PROTOCOL_DESCRIPTION",
-                $"Reduces skill cooldowns on kills by {PhenoixProtocolBuff.skillCoolDownForSelf}s while allies have " + wellStyle +" buff and you are below " +
-                $"<style=cIshealth>{100f * PhenoixProtocolBuff.minimumHealthForProFraction}% health");
+                $"Reduces skill cooldowns on kills by {PhoenixProtocolBuff.skillCoolDownForSelf}s while allies have " + wellStyle +" buff and you are below " +
+                $"<style=cIshealth>{100f * PhoenixProtocolBuff.minimumHealthForProFraction}% health");
             #endregion
 
             #region Primary

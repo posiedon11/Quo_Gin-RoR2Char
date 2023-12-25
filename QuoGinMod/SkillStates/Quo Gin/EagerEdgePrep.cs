@@ -12,33 +12,33 @@ namespace Quo_Gin.SkillStates
     internal class EagerEdgePrep : BaseState
     {
         private float duration;
-        private float baseDuration = 1f;
+        private float baseDuration = .5f;
 
 
         public override void OnEnter()
         {
             base.OnEnter();
             this.duration = baseDuration / this.attackSpeedStat;
-            base.PlayAnimation("FullBody, Override", "AssaulterPrep", "AssaulterPrep.playbackRate", this.baseDuration);
-            //GameObject gameObject = base.FindModelChildGameObject("PreDashEffect");
-            //if (gameObject != null)
-            //{
-            //    gameObject.SetActive(true);
-            //}
+            base.PlayAnimation("FullBody, Override", "AssaulterPrep", "AssaulterPrep.playbackRate", this.duration);
+            GameObject gameObject = base.FindModelChildGameObject("PreDashEffect");
+            if (gameObject != null)
+            {
+                gameObject.SetActive(true);
+            }
 
             Ray aimRay = base.GetAimRay();
             base.characterDirection.forward = aimRay.direction;
             base.characterDirection.moveVector = aimRay.direction;
-            base.SmallHop(base.characterMotor, 10f);
+            base.SmallHop(base.characterMotor, 3f);
         }
 
         public override void OnExit() 
         {
-            //GameObject gameObject = base.FindModelChildGameObject("PreDashEffect");
-            //if (gameObject != null)
-            //{
-            //    gameObject.SetActive(false);
-            //}
+            GameObject gameObject = base.FindModelChildGameObject("PreDashEffect");
+            if (gameObject != null)
+            {
+                gameObject.SetActive(false);
+            }
             base.OnExit();
         }
         public override void FixedUpdate()

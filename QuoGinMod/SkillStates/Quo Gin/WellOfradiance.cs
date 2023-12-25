@@ -34,7 +34,7 @@ namespace Quo_Gin.SkillStates
         private Transform landingIndicator;
         private static float stallDuration = .5f;
 
-
+        
 
         public override void OnEnter()
         {
@@ -44,11 +44,13 @@ namespace Quo_Gin.SkillStates
             healingPulseSpeedStat = base.attackSpeedStat;
             base.characterMotor.Motor.ForceUnground();
             base.characterMotor.velocity = Vector3.zero;
+            this.characterMotor.useGravity = false;
             base.characterBody.bodyFlags |= CharacterBody.BodyFlags.IgnoreFallDamage;
             base.characterMotor.Motor.RebuildCollidableLayers();
+
             //base.characterMotor.rootMotion = Vector3.up * .2f;
             //base.characterMotor.rootMotion += Vector3.up * (0.2f * this.moveSpeedStat * FlyUpState.speedCoefficientCurve.Evaluate(base.fixedAge / stallDuration) * Time.fixedDeltaTime);
-            base.SmallHop(characterMotor, 3);
+           // base.SmallHop(characterMotor, 3);
         }
 
         public override void Update()
@@ -73,21 +75,26 @@ namespace Quo_Gin.SkillStates
                     if (base.characterMotor.velocity.y < .2f)
                     {
                         Log.Debug("Stalling");
-                        base.characterMotor.velocity.y += .2f;
+                       //base.characterMotor.velocity.y += .2f;
+                        
                     }
                 }
-               //base.characterMotor.rootMotion += Vector3.up * (0.2f * this.moveSpeedStat * FlyUpState.speedCoefficientCurve.Evaluate(base.fixedAge / stallDuration) * Time.fixedDeltaTime);
-                
+                //base.characterMotor.rootMotion += Vector3.up * (0.2f * this.moveSpeedStat * FlyUpState.speedCoefficientCurve.Evaluate(base.fixedAge / stallDuration) * Time.fixedDeltaTime);
+                if (!base.characterMotor.isGrounded)
+                {
+                    if (base.fixedAge >= .2f * stallDuration && this.landingIndicator)
+                    {
+                        this.createIndicator();
+                    }
+                    
+                }
+                if (base.fixedAge >= stallDuration)
+                {
+                    this.startDrop();
+                }
             }
-
-            if (base.fixedAge >= .2f * stallDuration && this.landingIndicator)
-            {
-                this.createIndicator();
-            }
-            if (base.fixedAge >= stallDuration && !this.hasDroppped)
-            {
-                this.startDrop();
-            }
+            
+            
             if (this.hasDroppped && base.isAuthority && !base.characterMotor.disableAirControlUntilCollision)
             {
                 this.landingImpact();
@@ -161,6 +168,7 @@ namespace Quo_Gin.SkillStates
         {
             Log.Debug("Dropping");
             this.hasDroppped = true;
+            this.characterMotor.useGravity = true;
             base.characterMotor.disableAirControlUntilCollision = true;
             if (!base.characterMotor.isGrounded)
             {

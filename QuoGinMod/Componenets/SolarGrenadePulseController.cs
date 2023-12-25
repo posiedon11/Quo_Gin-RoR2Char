@@ -1,6 +1,7 @@
 ﻿
 using EntityStates;
 using Quo_Gin.Modules;
+using Quo_Gin.Modules.Characters;
 using Quo_Gin.SkillStates;
 using R2API;
 using RoR2;
@@ -60,9 +61,8 @@ namespace Quo_Gin.Componenets
                 procCoefficient = 1f,
                 radius = radius,
                 teamIndex = teamFilter.teamIndex
-            };
-            //DamageAPI.AddModdedDamageType(this.blastAttack, Quo_GinPlugin.SunShotMark);
-       
+            };    
+            pulseInterval /=  .25f *owner.GetComponent<CharacterBody>().attackSpeed;
         }
 
         private void FixedUpdate()
@@ -75,7 +75,7 @@ namespace Quo_Gin.Componenets
                 if (this.pulseStopWatch >= this.pulseInterval)
                 {
                     this.pulseStopWatch = 0;
-                    Log.Message("Createing Pulse Explosion");
+                    //Log.Message("Createing Pulse Explosion");
                     //this.Search(this.candidates);
                     EffectManager.SpawnEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/OmniEffect/OmniExplosionVFXQuick"), new EffectData
                     {
@@ -84,7 +84,7 @@ namespace Quo_Gin.Componenets
                         rotation = Util.QuaternionSafeLookRotation(Vector3.zero)
                     }, true);
                     this.blastAttack.Fire();
-                    Log.Message("Pulse Fired");
+                    //Log.Message("Pulse Fired");
                 }
             }
         }

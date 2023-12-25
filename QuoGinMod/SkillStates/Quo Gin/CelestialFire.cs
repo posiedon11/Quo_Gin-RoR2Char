@@ -16,10 +16,10 @@ namespace Quo_Gin.SkillStates
 
         public int projectileCount = 3;
         public static int minProjectileCount = 3;
-        public static int maxProjectileCount = 7;
+        public static int maxProjectileCount = 15;
         public static float damageCoefficient = 2f;
         public static float damageRadius = 1f;
-        public static float projectileSpeed = 80f;
+        public static float projectileSpeed = 140f;
 
         private GameObject projectilePrefab = Modules.Projectiles.celestialFirePrefab;
 
@@ -38,8 +38,8 @@ namespace Quo_Gin.SkillStates
         {
             base.OnEnter();
             Log.Debug($"Base Projectile: {projectileCount}");
-           // projectileCount *= Mathf.FloorToInt( 1f * this.attackSpeedStat);
-           // Log.Debug($"Current Projectile: {projectileCount}");
+           projectileCount *= Mathf.FloorToInt( 1f * this.attackSpeedStat);
+            Log.Debug($"Current Projectile: {projectileCount}");
             this.duration = baseDuration/ this.attackSpeedStat;
             this.fireDuration= baseFireDuration/ this.attackSpeedStat;
         }
@@ -55,7 +55,8 @@ namespace Quo_Gin.SkillStates
                 {
                     Ray aimRay = base.GetAimRay();
                     float bonusYaw = (float)Mathf.FloorToInt((float)this.projectilesFired - (float)(projectileCount - 1) / 2f) / (float)(projectileCount - 1) * totalYawSpread;
-                    Vector3 forward = Util.ApplySpread(aimRay.direction, 0f, 0f, 1f, 1f, bonusYaw, 0f);
+
+                    Vector3 forward = Util.ApplySpread(aimRay.direction, 0f, 0f, 1f, 1f, 0f, 0f);
                     ProjectileManager.instance.FireProjectile(projectilePrefab, aimRay.origin, Util.QuaternionSafeLookRotation(forward), 
                         base.gameObject, this.damageStat * damageCoefficient, force, Util.CheckRoll(this.critStat, base.characterBody.master), 
                         DamageColorIndex.Default, null, -1f);

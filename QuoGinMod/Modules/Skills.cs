@@ -1,4 +1,5 @@
 ﻿using EntityStates;
+using JetBrains.Annotations;
 using RoR2;
 using RoR2.Skills;
 using System;
@@ -184,6 +185,8 @@ namespace Quo_Gin.Modules
         public bool resetCooldownTimerOnUse;
         public bool mustKeyPress;
 
+
+
         #region constructors
         public SkillDefInfo() { }
         /// <summary>
@@ -219,5 +222,22 @@ namespace Quo_Gin.Modules
 
         }
         #endregion construction complete
+    }
+
+    internal class moddedSkillDefInfo : SkillDef
+    {
+        public static float GetCalculatedSuperCost(float value, float cooldown)
+        {
+            if (value !=0f)
+            {
+                return Mathf.Max(1f, value * cooldown);
+            }
+            return 0f;
+        }
+
+        public override void OnExecute([NotNull] GenericSkill skillSlot)
+        {
+            base.OnExecute(skillSlot);
+        }
     }
 }

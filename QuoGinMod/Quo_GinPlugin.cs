@@ -84,9 +84,9 @@ namespace  Quo_Gin
             // run hooks here, disabling one is as simple as commenting out the line
             On.RoR2.CharacterBody.RecalculateStats += CharacterBody_RecalculateStats;
             //Hook_SunShot();
-            new ScorchDebuff().Hook_ScorchDebuff();
-            new SunShotMark().Hook_SunShot();
-            new AscendingDawnBuff().Hook_AscendingDawn();
+            //new ScorchDebuff().Hook_ScorchDebuff();
+            //new SunShotMark().Hook_SunShot();
+            //new AscendingDawnBuff().Hook_AscendingDawn();
         }
 
         private void CharacterBody_RecalculateStats(On.RoR2.CharacterBody.orig_RecalculateStats orig, CharacterBody self)

@@ -5,41 +5,29 @@ using RoR2;
 using R2API;
 using UnityEngine;
 using EntityStates;
+using System.Linq;
 
 
 
 namespace Quo_Gin.SkillStates 
 {
-    internal class EagerEdgeLunge : BasicMeleeAttack
+    internal class EagerEdgeLunge : BaseSkillState
     {
         public static float damageCoefficient = 7f;
         private Vector3 lungeVector;
         private Transform modelTransform;
-        private float duration = 2f;
+        private float duration = 1f;
+        private float stopWatch = 0f;
+        private float speedCoefficient = 2f;
 
-
-        public string enterAnimationLayerName = "FullBody, Override";
-
-        // Token: 0x04000CEC RID: 3308
-        [SerializeField]
-        public string enterAnimationStateName = "AssaulterLoop";
-
-        // Token: 0x04000CED RID: 3309
-        [SerializeField]
-        public float enterAnimationCrossfadeDuration = 0.1f;
-
-        // Token: 0x04000CEE RID: 3310
-        [SerializeField]
-        public string exitAnimationLayerName = "FullBody, Override";
-
-        // Token: 0x04000CEF RID: 3311
-        [SerializeField]
-        public string exitAnimationStateName = "EvisLoopExit";
+        private HitBox hitBox;
+        private bool hasFired = false;
+        private OverlapAttack attack;
         private Vector3 lungeVelocity
         {
             get
             {
-                return this.lungeVector * this.moveSpeedStat;
+                return this.lungeVector * this.moveSpeedStat *speedCoefficient;
             }
         }
         public override void OnEnter()
@@ -47,67 +35,122 @@ namespace Quo_Gin.SkillStates
             base.OnEnter();
             Log.Debug("Entering Lunge");
             this.lungeVector = base.inputBank.aimDirection;
-
-
+            
+            HitBoxGroup  hitboxGroup = Array.Find<HitBoxGroup>(base.GetModelTransform().GetComponents<HitBoxGroup>(), (HitBoxGroup element) => element.groupName == "EagerEdge");
             base.gameObject.layer = LayerIndex.fakeActor.intVal;
             base.characterMotor.Motor.RebuildCollidableLayers();
             base.characterMotor.Motor.ForceUnground();
             base.characterMotor.velocity = Vector3.zero;
-
+            
             this.modelTransform = base.GetModelTransform();
-            base.PlayCrossfade(this.enterAnimationLayerName, this.enterAnimationStateName, this.enterAnimationCrossfadeDuration);
             base.characterDirection.forward = base.characterMotor.velocity.normalized;
+
+
+            Ray aimRay = base.GetAimRay();
+            this.attack = new OverlapAttack()
+            {
+                damageType = DamageType.Stun1s,
+                attacker = base.gameObject,
+                inflictor = base.gameObject,
+                teamIndex = base.GetTeam(),
+                damage = base.damageStat * damageCoefficient,
+                procCoefficient = 1f,
+                forceVector = aimRay.direction * 3f,
+                pushAwayForce = 100f,
+                hitBoxGroup = hitboxGroup,
+                isCrit=base.RollCrit()
+            };
+            Log.Debug(hitboxGroup.hitBoxes[0].transform.localScale);
+
         }
         public override void OnExit()
         {
-            Log.Debug("Exiting Lunge");
-            base.SmallHop(base.characterMotor, -10f);
-            this.PlayAnimation(this.exitAnimationLayerName, this.exitAnimationStateName);
+            //Log.Debug("ON Exit Lunge");
+            base.SmallHop(base.characterMotor, -3f);
             base.gameObject.layer = LayerIndex.defaultLayer.intVal;
             base.gameObject.layer = LayerIndex.defaultLayer.intVal;
             base.characterMotor.Motor.RebuildCollidableLayers();
             base.OnExit();
         }
-        public override void PlayAnimation()
-        {
-            base.PlayAnimation();
-            // base.PlayCrossfade(this.enterAnimationLayerName, this.enterAnimationStateName, this.enterAnimationCrossfadeDuration);
-            base.PlayCrossfade("Gesture, Override", "Slash" + (1), "Slash.playbackRate", this.duration, 0.05f);
 
-        }
-        public override void AuthorityFixedUpdate()
+        public override void FixedUpdate()
         {
-            base.AuthorityFixedUpdate();
-            if (!base.authorityInHitPause)
+            base.FixedUpdate();
+            this.stopWatch += Time.fixedDeltaTime;
+            if (this.stopWatch >= this.duration)
+            {
+                Log.Debug("Exiting Lunge Late");
+                if (!hasFired)
+                {
+                    this.hasFired = true;
+                    this.attack.damage *= 1 + 1 / base.moveSpeedStat;
+                    this.attack.Fire();
+                }
+                this.outer.SetNextStateToMain();
+            }
+
+            else if (!hasFired)
             {
                 base.characterMotor.rootMotion += this.lungeVelocity * Time.fixedDeltaTime;
                 base.characterDirection.forward = this.lungeVelocity;
                 base.characterDirection.moveVector = this.lungeVelocity;
                 base.characterBody.isSprinting = true;
+
+                if (earlySwing(5f))
+                {
+                    Log.Debug("Swinging Early");
+                    this.hasFired = true;
+                    this.attack.damage *= 1 + 1 / 2 * base.moveSpeedStat;
+                    this.attack.Fire();
+                }
             }
-        }
-        public override void FixedUpdate()
-        {
-            base.FixedUpdate();
-            if (this.stopwatch)
+            else
+            {
+                Log.Debug("Exiting Lunge Early");
+                this.outer.SetNextStateToMain();
+            }
+            
         }
 
-        public override void AuthorityModifyOverlapAttack(OverlapAttack overlapAttack)
+        private bool earlySwing(float radius)
         {
-            base.AuthorityModifyOverlapAttack(overlapAttack);
-            overlapAttack.damage = this.damageStat * damageCoefficient;
-        }
-        public override void OnMeleeHitAuthority()
-        {
-            base.OnMeleeHitAuthority();
-            float num = this.hitPauseDuration / this.attackSpeedStat;
-            
-            foreach (HurtBox victimHurtBox in this.hitResults)
+            Ray aimRay = base.GetAimRay();
+            BullseyeSearch bullseyeSearch = new BullseyeSearch()
             {
-                float damageValue = base.characterBody.damage * damageCoefficient;
-                bool isCrit = base.RollCrit();
+                teamMaskFilter = TeamMask.GetEnemyTeams(base.GetTeam()),
+                filterByLoS = false,
+                searchOrigin = base.transform.position,
+                searchDirection = UnityEngine.Random.onUnitSphere,
+                sortMode = BullseyeSearch.SortMode.Distance,
+                maxAngleFilter = 90f,
+                maxDistanceFilter = radius
+            };
+            bullseyeSearch.RefreshCandidates();
+            bullseyeSearch.FilterOutGameObject(base.gameObject);
+            HurtBox hurtBox = bullseyeSearch.GetResults().FirstOrDefault<HurtBox>();
+            if (hurtBox && hurtBox.healthComponent && hurtBox.healthComponent.body)
+            {
+                return true;
             }
+            return false;
         }
+
+        //public override void AuthorityModifyOverlapAttack(OverlapAttack overlapAttack)
+        //{
+        //    base.AuthorityModifyOverlapAttack(overlapAttack);
+        //    overlapAttack.damage = this.damageStat * damageCoefficient;
+        //}
+        //public override void OnMeleeHitAuthority()
+        //{
+        //    base.OnMeleeHitAuthority();
+        //    float num = this.hitPauseDuration / this.attackSpeedStat;
+            
+        //    foreach (HurtBox victimHurtBox in this.hitResults)
+        //    {
+        //        float damageValue = base.characterBody.damage * damageCoefficient;
+        //        bool isCrit = base.RollCrit();
+        //    }
+        //}
         public override InterruptPriority GetMinimumInterruptPriority()
         {
             return InterruptPriority.PrioritySkill;

@@ -8,7 +8,7 @@ using UnityEngine.Networking;
 
 namespace Quo_Gin.Componenets
 {
-    internal class PhenoixProtocolBuff : NetworkBehaviour, IOnKilledOtherServerReceiver
+    internal class PhoenixProtocolBuff : NetworkBehaviour, IOnKilledOtherServerReceiver
     {
         private SkillLocator skillLocator;
 

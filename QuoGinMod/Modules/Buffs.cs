@@ -10,7 +10,7 @@ namespace Quo_Gin.Modules
         // armor buff gained during roll
         internal static BuffDef armorBuff;
         //passive Buff
-        internal static BuffDef pheonixProtocolBuff;
+        internal static BuffDef PhoenixProtocolBuff;
 
         internal static BuffDef sunShotDebuff;
         internal static BuffDef ascendingDawnJumpBuff;
@@ -25,7 +25,7 @@ namespace Quo_Gin.Modules
                 Color.white,
                 false,
                 false);
-            pheonixProtocolBuff = AddNewBuff("QuoGinPheonixProtocolBuff",
+            PhoenixProtocolBuff = AddNewBuff("QuoGinPhoenixProtocolBuff",
                 LegacyResourcesAPI.Load<BuffDef>("BuffDefs/HiddenInvincibility").iconSprite,
                 Color.yellow,
                 false,
