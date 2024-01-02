@@ -1,10 +1,14 @@
 ﻿using BepInEx.Configuration;
+using EntityStates.Croco;
+using IL.RoR2.UI;
 using Quo_Gin.Componenets;
 using Quo_Gin.Modules.Characters;
 using RoR2;
 using RoR2.Skills;
+using RoR2.UI;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 
 namespace Quo_Gin.Modules.Survivors
@@ -14,15 +18,16 @@ namespace Quo_Gin.Modules.Survivors
         //used when building your character using the prefabs you set up in unity
         //don't upload to thunderstore without changing this
         public override string prefabBodyName => "Henry";
+        
 
         public const string QUO_GIN_PREFIX = Tokens.prefix;
 
         //used when registering your survivor's language tokens
         public override string survivorTokenPrefix => QUO_GIN_PREFIX;
-
+        public static HUDManager hudmanager;
         public override BodyInfo bodyInfo { get; set; } = new BodyInfo
         {
-            bodyName = "HenryTutorialBody",
+            bodyName = "QuoGinBody",
             bodyNameToken = QUO_GIN_PREFIX + "NAME",
             subtitleNameToken = QUO_GIN_PREFIX + "SUBTITLE",
 
@@ -35,9 +40,8 @@ namespace Quo_Gin.Modules.Survivors
             maxHealth = 110f,
             healthRegen = 30f,
             armor = 30f,
-            jumpCount = 4,
+            jumpCount = 2,     
         };
-
         public override CustomRendererInfo[] customRendererInfos { get; set; } = new CustomRendererInfo[]
         {
                 new CustomRendererInfo
@@ -57,7 +61,7 @@ namespace Quo_Gin.Modules.Survivors
 
         public override UnlockableDef characterUnlockableDef => null;
 
-        public override Type characterMainState => typeof(EntityStates.GenericCharacterMain);
+        public override Type characterMainState => typeof(CharacterMain);
 
         public override ItemDisplaysBase itemDisplays => new QuoGinItemDisplays();
 
@@ -68,9 +72,9 @@ namespace Quo_Gin.Modules.Survivors
 
         public override void InitializeCharacter()
         {
+            //Quo_GinPlugin.instance.gameObject.AddComponent<HUDManager>();
+            //HUDManager.Get().Init();
             base.InitializeCharacter();
-
-
         }
 
         public override void InitializeUnlockables()
@@ -81,37 +85,31 @@ namespace Quo_Gin.Modules.Survivors
 
         public override void InitializeHitboxes()
         {
-            //Log.Debug("Finding Child");
             ChildLocator childLocator = bodyPrefab.GetComponentInChildren<ChildLocator>();
-            ////Log.Debug("Finding Hitbox");
-            //HitBoxGroup EagerEdgeHitBoxGroup = bodyPrefab.AddComponent<HitBoxGroup>();
-            //GameObject EagerEdgeHitBoxObject = childLocator.FindChild("SwordHitbox").gameObject;
-            //EagerEdgeHitBoxObject.transform.localScale = Vector3.one * 20f;
-            //EagerEdgeHitBoxObject.transform.localPosition = new Vector3(0f, 2f, 2f);
-            ////Log.Debug("Other");
-            //HitBox EagerEdgeHitBox = EagerEdgeHitBoxObject.AddComponent<HitBox>();
-            //EagerEdgeHitBoxObject.layer = LayerIndex.projectile.intVal;
-            //EagerEdgeHitBoxGroup.hitBoxes = new HitBox[]
-            //{
-            //    EagerEdgeHitBox
-            //};
-            //EagerEdgeHitBoxGroup.name = "EagerEdge";
-
-
             //example of how to create a hitbox
             Transform hitboxTransform = childLocator.FindChild("SwordHitbox");
             hitboxTransform.transform.localScale = Vector3.one * 15f;
             Modules.Prefabs.SetupHitbox(prefabCharacterModel.gameObject, hitboxTransform, "EagerEdge");
         }
 
+        public override void InitializeComponents()
+        {
+            hudmanager = bodyPrefab.AddComponent<HUDManager>();
+            //bodyPrefab.AddComponent<HUDManager>();
+            bodyPrefab.AddComponent<PhoenixProtocolBuff>();
+            bodyPrefab.AddComponent<ScorchDebuff>();
+            bodyPrefab.AddComponent<SunShotMark>();
+            bodyPrefab.AddComponent<AscendingDawnBuff>();
+            bodyPrefab.AddComponent<SuperHandler>();
+            //odyPrefab.AddComponent<ResourceHandler>();   
+           // bodyPrefab.AddComponent<JumpHandler>();
+        }   
         public override void InitializeSkills()
         {
-            //add The passives
-            this.bodyPrefab.AddComponent<PhoenixProtocolBuff>();
-            this.bodyPrefab.AddComponent<ScorchDebuff>().Hook_ScorchDebuff();
-            this.bodyPrefab.AddComponent<SunShotMark>().Hook_SunShot();
-            this.bodyPrefab.AddComponent<AscendingDawnBuff>().Hook_AscendingDawn();
+            
+            //this.bodyPrefab.AddComponent<UI_ResourceBar>().resourceHandler = this.bodyPrefab.GetComponent<ResourceHandler>();
 
+             //this.bodyPrefab.GetComponent<UI_ResourceBar>().resourceHandler = this.bodyPrefab.GetComponent<ResourceHandler>();
             Modules.Skills.CreateSkillFamilies(bodyPrefab);
             string prefix = Quo_GinPlugin.DEVELOPER_PREFIX + "_QUO_GIN_BODY_";
 
@@ -279,8 +277,37 @@ namespace Quo_Gin.Modules.Survivors
                 stockToConsume = 1,
                 keywordTokens = new string[] { Tokens.prefix + "KEYWORD_SCORCH", Tokens.prefix + "KEYWORD_WELL" }
             });
+            moddedSkillDef wellOfModRadianceSkillDef = Modules.moddedSkillDef.CreateModdedSkillDef(new ModdedSkillDefInfo
+            {
+                skillName = prefix + "SPECIAL_Mod_WELL_OF_RADIANCE_NAME",
+                skillNameToken = prefix + "SPECIAL_WELL_OF_RADIANCE_NAME",
+                skillDescriptionToken = prefix + "SPECIAL_WELL_OF_RADIANCE_DESCRIPTION",
+                skillIcon = Modules.Assets.mainAssetBundle.LoadAsset<Sprite>("texSpecialIcon"),
+                activationState = new EntityStates.SerializableEntityStateType(typeof(SkillStates.WellOfRadiance)),
+                activationStateMachineName = "Body",
+                baseMaxStock = 1,
+                baseRechargeInterval = 1f,
+                beginSkillCooldownOnSkillEnd = false,
+                canceledFromSprinting = false,
+                forceSprintDuringState = false,
+                fullRestockOnAssign = true,
+                interruptPriority = EntityStates.InterruptPriority.Skill,
+                resetCooldownTimerOnUse = false,
+                isCombatSkill = true,
+                mustKeyPress = false,
+                cancelSprintingOnActivation = true,
+                rechargeStock = 1,
+                requiredStock = 1,
+                stockToConsume = 1,
+                baseResourceCost = 70f,
+                percentageCost = 1f,
+                percentToDrain = 1f,
+                keywordTokens = new string[] { Tokens.prefix + "KEYWORD_SCORCH", Tokens.prefix + "KEYWORD_WELL" }
+            });
 
-            Modules.Skills.AddSpecialSkills(bodyPrefab, wellOfRadianceSkillDef);
+            //Modules.Skills.AddSpecialSkills(bodyPrefab, wellOfRadianceSkillDef);
+            Modules.Skills.AddSpecialSkills(bodyPrefab, wellOfModRadianceSkillDef);
+ 
             #endregion
         }
 

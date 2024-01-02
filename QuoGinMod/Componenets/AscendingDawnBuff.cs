@@ -10,6 +10,10 @@ namespace Quo_Gin.Componenets
     internal class AscendingDawnBuff : NetworkBehaviour
     {
 
+        public void Awake()
+        {
+            this.Hook_AscendingDawn();
+        }
         public void Hook_AscendingDawn()
         {
             Log.Debug("Hooking Ascending Dawn");

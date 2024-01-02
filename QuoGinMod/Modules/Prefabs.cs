@@ -16,6 +16,17 @@ namespace Quo_Gin.Modules
         // cache this just to give our ragdolls the same physic material as vanilla stuff
         private static PhysicMaterial ragdollMaterial;
 
+
+        public static GameObject CreateUIPrefab(string prefabName)
+        {
+            GameObject prefab = Assets.LoadUI(prefabName);
+            if (prefab == null)
+            {
+                return null;
+            }
+            Log.Debug($"UI Prefab {prefabName} found");
+            return prefab;
+        }
         public static GameObject CreateDisplayPrefab(string displayModelName, GameObject prefab, BodyInfo bodyInfo)
         {
             GameObject model = Assets.LoadSurvivorModel(displayModelName);

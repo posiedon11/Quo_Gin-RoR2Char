@@ -1,17 +1,20 @@
 ﻿using EntityStates;
 using JetBrains.Annotations;
+using Quo_Gin.Componenets;
 using RoR2;
 using RoR2.Skills;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 
 namespace Quo_Gin.Modules
 {
 
-    internal static class Skills
+    internal class Skills
     {
         #region genericskills
+        
         public static void CreateSkillFamilies(GameObject targetPrefab, bool destroyExisting = true)
         {
             if (destroyExisting)
@@ -222,22 +225,5 @@ namespace Quo_Gin.Modules
 
         }
         #endregion construction complete
-    }
-
-    internal class moddedSkillDefInfo : SkillDef
-    {
-        public static float GetCalculatedSuperCost(float value, float cooldown)
-        {
-            if (value !=0f)
-            {
-                return Mathf.Max(1f, value * cooldown);
-            }
-            return 0f;
-        }
-
-        public override void OnExecute([NotNull] GenericSkill skillSlot)
-        {
-            base.OnExecute(skillSlot);
-        }
-    }
+    } 
 }

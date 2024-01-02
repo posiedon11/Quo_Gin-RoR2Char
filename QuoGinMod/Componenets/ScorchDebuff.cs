@@ -16,6 +16,11 @@ namespace Quo_Gin.Componenets
         public static float scorchExplosionCoefficient = 2f;
         private static float scorchExplosionRadius = 20f;
         public static float scorchDuration = 8f;
+
+        public void Awake()
+        {
+            this.Hook_ScorchDebuff();
+        }
         public void Start()
         {
             Log.Debug("Starting Scorch Debuff");
@@ -64,6 +69,7 @@ namespace Quo_Gin.Componenets
 
         public void Hook_ScorchDebuff()
         {
+            Log.Debug("hooking Scorch Debuff");
            // On.RoR2.GlobalEventManager.OnCharacterDeath += GlobalEventManager_OnCharacterDeath;
             //On.RoR2.GlobalEventManager.OnHitAll += GlobalEventManager_OnHitAll;
             On.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeDamage;

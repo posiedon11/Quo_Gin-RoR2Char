@@ -54,25 +54,9 @@ namespace Quo_Gin.Modules
 
 
             celestileDamage.damage = 0;
-            // InitializeProjectileSingleTargetImpact(celestialFireImpact);
-            //celestialFireController.ghostPrefab = CreateGhostPrefab("HenryBombGhost");
-            //celestialFireImpact.destroyWhenNotAlive = true;
-            //celestialFireImpact.destroyOnWorld = true;
-            // celestialFireImpact.impactEffect = Assets.bombExplosionEffect;
-
-            //celestialFirePrefab.GetComponent<SphereCollider>().radius = (5);
             InitializeProjectileSimple(celestialProjectile);
             celestialProjectile.lifetime = 5f;
             celestialProjectile.desiredForwardSpeed = CelestialFire.projectileSpeed;
-            // SphereCollider celestialFireCollider = celestialFirePrefab.GetComponent<SphereCollider>();
-
-
-
-
-
-            //InitializeImpactExplosion(celestialFireExplosion);
-
-
             celestialFireExplosion.impactEffect = Assets.bombExplosionEffect;
             celestialFireExplosion.timerAfterImpact = true;
             celestialFireExplosion.lifetime = 5f;
@@ -91,7 +75,6 @@ namespace Quo_Gin.Modules
 
             BuffWard wellBuff = wellOfRadiancePrefab.AddComponent<BuffWard>();
             HealingWard wellHeal = wellOfRadiancePrefab.AddComponent<HealingWard>();
-            // wellOfRadiancePrefab.transform.localScale = Vector3.one * WellOfRadiance.landingRadius;
             float range = WellOfRadiance.landingRadius;
             float temp = 0f;
             range = Mathf.SmoothDamp(wellOfRadiancePrefab.transform.localScale.x, range, ref temp, .2f);
@@ -111,16 +94,6 @@ namespace Quo_Gin.Modules
             wellHeal.interval = WellOfRadiance.healingPulseBaseFrequency / WellOfRadiance.healingPulseSpeedStat;
             wellHeal.healFraction = WellOfRadiance.healingCoefficient;
             wellHeal.floorWard = true;
-            //wellHeal.rangeIndicator.localScale = new Vector3(range, range, range);
-
-            //GameObject wellEffect = CloneProjectilePrefab("SporeGrenadeProjectileDotZone", "WellOfRadianceEffect");
-            //wellEffect.transform.parent = wellOfRadiancePrefab.transform;
-            //wellEffect.transform.localPosition = Vector3.zero;
-            //wellEffect.transform.localScale = Vector3.one * WellOfRadiance.landingRadius;
-
-            //UnityEngine.Object.Destroy(wellOfRadiancePrefab.transform.GetChild(0).gameObject);
-
-
         }
         private static void createSolarGrenade()
         {
@@ -141,10 +114,6 @@ namespace Quo_Gin.Modules
             solarGrenadeController.startSound = "";
             InitializeProjectilDamage(solardamage);
             InitializeImpactExplosion(solarGrenadeExplosion);
-            //if (Assets.mainAssetBundle.LoadAsset<GameObject>("SolarGrenadeGhost") != null) solarGrenadeController.ghostPrefab = CreateGhostPrefab("SolarGrenadeGhost");
-
-            //solarGrenadeExplosion.destroyOnEnemy = true;
-            //solarGrenadeExplosion.destroyOnWorld = true;
             solarGrenadeExplosion.impactEffect = Assets.bombExplosionEffect;
             solarGrenadeExplosion.timerAfterImpact = true;
             solarGrenadeExplosion.lifetime = 12f;
@@ -165,14 +134,7 @@ namespace Quo_Gin.Modules
 
             solarGrenadePulsePrefab.AddComponent<DamageAPI.ModdedDamageTypeHolderComponent>().Add(Quo_GinPlugin.ScorchMark);
             solarGrenadePulsePrefab.AddComponent<SolarGrenadePulseController>();
-            solarGrenadePulsePrefab.AddComponent<DestroyOnTimer>().duration = SolarGrenade.duration;
-            //ProjectileImpactExplosion explosion = solarGrenadePulsePrefab.GetComponent<ProjectileImpactExplosion>();
-            //InitializeImpactExplosion(explosion);
-            //solarGrenadePulsePrefab.GetComponent<Rigidbody>().velocity = Vector3.zero;
-
-            //solarGrenadePulsePrefab.transform.parent = solarGrenadePulsePrefab.transform;b);
-
-
+            //solarGrenadePulsePrefab.AddComponent<DestroyOnTimer>().duration = SolarGrenade.duration;
         }
         private static void CreateBomb()
         {

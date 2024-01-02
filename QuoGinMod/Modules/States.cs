@@ -2,6 +2,7 @@
 using System;
 using Quo_Gin.SkillStates.BaseStates;
 using Quo_Gin.SkillStates;
+using Quo_Gin.Componenets;
 
 namespace Quo_Gin.Modules
 {
@@ -10,6 +11,7 @@ namespace Quo_Gin.Modules
         internal static void RegisterStates()
         {
             Content.AddEntityState(typeof(BaseMeleeAttack));
+            Content.AddEntityState(typeof(ModdedSkillState<SuperHandler>));
             Content.AddEntityState(typeof(SunShot));
 
             Content.AddEntityState(typeof(AscendingDawn));
@@ -17,6 +19,8 @@ namespace Quo_Gin.Modules
             Content.AddEntityState(typeof(WellOfRadiance));
 
             Content.AddEntityState(typeof(SolarGrenade));
+            Content.AddEntityState(typeof(UpwardsGlideState));
+            Content.AddEntityState(typeof(GlideState));
         }
     }
 }

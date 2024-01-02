@@ -12,10 +12,12 @@ using EntityStates.Mage;
 using Quo_Gin.Modules;
 using RoR2.Projectile;
 using R2API;
+using Quo_Gin.SkillStates.BaseStates;
+using Quo_Gin.Componenets;
 
 namespace Quo_Gin.SkillStates
 {
-    internal class WellOfRadiance : BaseSkillState
+    internal class WellOfRadiance : ModdedSkillState<SuperHandler>
     {
         public static float landingDamageCoefficient = 20f;
         public static float damageBuffBonusDamage = .5f;
@@ -47,6 +49,7 @@ namespace Quo_Gin.SkillStates
             this.characterMotor.useGravity = false;
             base.characterBody.bodyFlags |= CharacterBody.BodyFlags.IgnoreFallDamage;
             base.characterMotor.Motor.RebuildCollidableLayers();
+            
 
             //base.characterMotor.rootMotion = Vector3.up * .2f;
             //base.characterMotor.rootMotion += Vector3.up * (0.2f * this.moveSpeedStat * FlyUpState.speedCoefficientCurve.Evaluate(base.fixedAge / stallDuration) * Time.fixedDeltaTime);
@@ -66,20 +69,6 @@ namespace Quo_Gin.SkillStates
             base.FixedUpdate();
             if (!this.hasDroppped)
             {
-                //if(base.fixedAge < .2f)
-                //{
-                    //base.characterMotor.rootMotion += Vector3.up * (0.2f * this.moveSpeedStat * FlyUpState.speedCoefficientCurve.Evaluate(base.fixedAge / stallDuration) * Time.fixedDeltaTime);
-              //  }
-                 if (base.fixedAge < stallDuration)
-                {
-                    if (base.characterMotor.velocity.y < .2f)
-                    {
-                        Log.Debug("Stalling");
-                       //base.characterMotor.velocity.y += .2f;
-                        
-                    }
-                }
-                //base.characterMotor.rootMotion += Vector3.up * (0.2f * this.moveSpeedStat * FlyUpState.speedCoefficientCurve.Evaluate(base.fixedAge / stallDuration) * Time.fixedDeltaTime);
                 if (!base.characterMotor.isGrounded)
                 {
                     if (base.fixedAge >= .2f * stallDuration && this.landingIndicator)
@@ -166,13 +155,13 @@ namespace Quo_Gin.SkillStates
         }
         private void startDrop()
         {
-            Log.Debug("Dropping");
+            //Log.Debug("Dropping");
             this.hasDroppped = true;
             this.characterMotor.useGravity = true;
             base.characterMotor.disableAirControlUntilCollision = true;
             if (!base.characterMotor.isGrounded)
             {
-                Log.Debug("Char isnt grounded");
+                Log.Debug("Char is grounded");
                 base.characterMotor.velocity.y = -dropForce;
             }
             else

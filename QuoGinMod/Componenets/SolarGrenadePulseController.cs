@@ -28,6 +28,7 @@ namespace Quo_Gin.Componenets
         private float pulseInterval = 3f;
         private float pulseStopWatch = 0f;
         private float radius = SolarGrenade.damageRadius;
+        private float durationTimer;
 
         private Vector3 position;
         private BlastAttack blastAttack;
@@ -39,16 +40,18 @@ namespace Quo_Gin.Componenets
             this.position = base.transform.position;
             this.candidates= new List<HurtBox>();
             this.pulseInterval = SolarGrenade.basePulseSpeed/ SolarGrenade.grenadeaAttackSpeedStat;
+            this.durationTimer = 0f;
             Log.Message("Pulse Awake");
 
         }
         private void Start()
         {
             Log.Message("Grenade Blew Up");
+            SolarGrenade.activeGrenades++;
             this.owner = base.GetComponent<ProjectileController>().owner;
             this.blastAttack = new BlastAttack()
             {
-                baseDamage = base.GetComponent<ProjectileDamage>().damage,
+                baseDamage = base.GetComponent<ProjectileDamage>().damage * (float)(1 + (.2 * Mathf.Clamp(SolarGrenade.activeGrenades, 1f, 5f))),
                 baseForce = 2f,
                 attackerFiltering = AttackerFiltering.NeverHitSelf,
                 crit = false,
@@ -61,8 +64,10 @@ namespace Quo_Gin.Componenets
                 procCoefficient = 1f,
                 radius = radius,
                 teamIndex = teamFilter.teamIndex
-            };    
-            pulseInterval /=  .25f *owner.GetComponent<CharacterBody>().attackSpeed;
+            }; 
+            DamageAPI.AddModdedDamageType(this.blastAttack, Quo_GinPlugin.SunShotMark);
+            pulseInterval -=  1f / owner.GetComponent<CharacterBody>().attackSpeed;
+            Log.Debug(SolarGrenade.activeGrenades);
         }
 
         private void FixedUpdate()
@@ -83,14 +88,24 @@ namespace Quo_Gin.Componenets
                         scale = radius,
                         rotation = Util.QuaternionSafeLookRotation(Vector3.zero)
                     }, true);
+                    //Log.Debug(SolarGrenade.activeGrenades);
+                    this.blastAttack.baseDamage = base.GetComponent<ProjectileDamage>().damage * (float)(1 + (.2 * Mathf.Clamp(SolarGrenade.activeGrenades-1, 0f, 5f)));
                     this.blastAttack.Fire();
                     //Log.Message("Pulse Fired");
+                }
+                this.durationTimer += Time.fixedDeltaTime;
+                if (this.durationTimer >= SolarGrenade.duration)
+                {
+                    this.Exit();
                 }
             }
         }
         private void Exit()
         {
+            SolarGrenade.activeGrenades--;
             Log.Message("Pulse Over");
+            UnityEngine.Object.Destroy(this.gameObject);
+            
         }
         private void Search(List<HurtBox> candidates)
         {

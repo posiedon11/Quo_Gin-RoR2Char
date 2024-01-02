@@ -11,7 +11,7 @@ using static RoR2.BulletAttack;
 
 namespace Quo_Gin.SkillStates
 {
-    internal class SunShot :GenericProjectileBaseState
+    internal class SunShot : BaseSkillState
     {
         public static float damageCoefficient = 2f;
         public static float baseDuration = 0.25f;
@@ -58,11 +58,12 @@ namespace Quo_Gin.SkillStates
                 this.hasFired = true;
 
                 base.characterBody.AddSpreadBloom(1.5f);
-               // EffectManager.SimpleMuzzleFlash(EntityStates.Commando.CommandoWeapon.FirePistol2.muzzleEffectPrefab, base.gameObject, this.muzzleString, false);
-               // Util.PlaySound("HenryShootPistol", base.gameObject);
+                EffectManager.SimpleMuzzleFlash(EntityStates.Commando.CommandoWeapon.FirePistol2.muzzleEffectPrefab, base.gameObject, this.muzzleString, false);
+                Util.PlaySound("HenryShootPistol", base.gameObject);
 
                 if (base.isAuthority)
                 {
+
                     Ray aimRay = base.GetAimRay();
                     base.AddRecoil(-1f * SunShot.recoil, -2f * SunShot.recoil, -0.5f * SunShot.recoil, 0.5f * SunShot.recoil);
 
@@ -141,14 +142,14 @@ namespace Quo_Gin.SkillStates
         }
         public override void FixedUpdate()
         {
+            
             base.FixedUpdate();
-
-            if (base.fixedAge >= this.fireTime)
+            if (base.fixedAge >= this.fireTime && !this.hasFired)
             {
                 this.Fire();
             }
 
-            if (base.fixedAge >= this.duration && base.isAuthority)
+            if (base.fixedAge >= this.duration && base.isAuthority && this.hasFired)
             {
                 this.outer.SetNextStateToMain();
                 return;

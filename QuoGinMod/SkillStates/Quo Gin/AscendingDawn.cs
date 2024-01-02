@@ -8,6 +8,7 @@ using RoR2;
 using HG;
 using UnityEngine.UIElements;
 using R2API;
+using Quo_Gin.Componenets;
 
 namespace Quo_Gin.SkillStates
 {
@@ -87,7 +88,6 @@ namespace Quo_Gin.SkillStates
             {
                 this.forwardDirection = ((base.inputBank.moveVector == Vector3.zero) ? base.characterDirection.forward : base.inputBank.moveVector).normalized;
             }
-
             base.characterMotor.disableAirControlUntilCollision = false;
             //this.previousAircontrol = base.characterMotor.airControl;
           //  base.characterMotor.airControl = 1f;

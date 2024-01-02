@@ -8,7 +8,10 @@ namespace Quo_Gin.Componenets
     internal class SunShotMark : NetworkBehaviour, IOnKilledServerReceiver
     {
         private SkillLocator SkillLocator;
-
+        private void Awake()
+        {
+            this.Hook_SunShot();
+        }
         private void Start()
         {
             this.SkillLocator = base.GetComponent<SkillLocator>();

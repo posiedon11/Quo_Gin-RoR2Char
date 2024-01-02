@@ -24,6 +24,10 @@ namespace Quo_Gin.Modules
 
         internal static GameObject lineVisualizer;
         internal static GameObject explosionvisualizer;
+
+        internal static GameObject UIPrefab;
+
+
         // networked hit sounds
         internal static NetworkSoundEventDef swordHitSoundEvent;
         #endregion
@@ -32,7 +36,7 @@ namespace Quo_Gin.Modules
         internal static AssetBundle mainAssetBundle;
 
         // CHANGE THIS
-        private const string assetbundleName = "myassetbundle1";
+        private const string assetbundleName = "bundle2";
         //change this to your project's name if/when you've renamed it
         private const string csProjName = "Quo_Gin";
 
@@ -78,6 +82,17 @@ namespace Quo_Gin.Modules
             }
         }
 
+        public static GameObject LoadUI(string prefabName)
+        {
+            GameObject uiPrefab = mainAssetBundle.LoadAsset<GameObject>(prefabName);
+            if (uiPrefab == null)
+            {
+                Log.Error($"No UIPrefab of name {prefabName}");
+                return null;
+            }
+            else { Log.Debug("Found " + uiPrefab.name); }
+            return uiPrefab;
+        }
         internal static void PopulateAssets()
         {
             if (!mainAssetBundle)
@@ -92,6 +107,8 @@ namespace Quo_Gin.Modules
             swordHitSoundEvent = CreateNetworkSoundEventDef("HenrySwordHit");
 
             bombExplosionEffect = LoadEffect("BombExplosionEffect", "HenryBombExplosion");
+            UIPrefab = LoadUI("QuoGinHud");
+
 
             if (bombExplosionEffect)
             {
@@ -208,6 +225,7 @@ namespace Quo_Gin.Modules
         {
             return LoadEffect(resourceName, "", parentToTransform);
         }
+
 
         private static GameObject LoadEffect(string resourceName, string soundName, bool parentToTransform)
         {

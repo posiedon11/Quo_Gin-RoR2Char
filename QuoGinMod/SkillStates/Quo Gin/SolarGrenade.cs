@@ -23,6 +23,7 @@ namespace Quo_Gin.SkillStates
         public static float duration = 12f;
         public static float basePulseSpeed = 3f;
         public static float grenadeaAttackSpeedStat = 3f;
+        public static float activeGrenades = 0f;
 
         public override void OnEnter()
         {

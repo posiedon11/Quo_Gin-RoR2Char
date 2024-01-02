@@ -14,6 +14,7 @@ namespace Quo_Gin.Componenets
 
         internal const float minimumHealthForProFraction = 2f;
         internal const float skillCoolDownForSelf = 3f;
+
         private void Start()
         {
             Log.Debug("Starting Passive Skill");
@@ -24,19 +25,19 @@ namespace Quo_Gin.Componenets
         {
             if (NetworkServer.active)
             {
-                Log.Debug("Something Died");
+                //Log.Debug("Something Died");
                 CharacterBody attackerBody = damageReport.attacker.GetComponent<CharacterBody>();
                 if (base.hasAuthority)
                 {
-                    Log.Debug($"{attackerBody.name} Killed it");
+                    //Log.Debug($"{attackerBody.name} Killed it");
                     
                     if (attackerBody.HasBuff(Modules.Buffs.wellOfRadianceBuff))
                     {
                         
-                        Log.Debug("Something died while having buff");
+                        //Log.Debug("Something died while having buff");
                         if (attackerBody.healthComponent.GetHealthBarValues().healthFraction < minimumHealthForProFraction)
                         {
-                            Log.Debug($"{base.GetComponent<CharacterBody>().name} is getting cooldown");
+                            //Log.Debug($"{base.GetComponent<CharacterBody>().name} is getting cooldown");
                             this.skillLocator.special.rechargeStopwatch += skillCoolDownForSelf;
                             this.skillLocator.utility.rechargeStopwatch += skillCoolDownForSelf;
                             this.skillLocator.primary.rechargeStopwatch += skillCoolDownForSelf;

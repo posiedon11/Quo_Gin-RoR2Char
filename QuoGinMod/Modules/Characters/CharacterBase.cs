@@ -30,17 +30,20 @@ namespace Quo_Gin.Modules.Characters
 
         public virtual void InitializeCharacter()
         {
+
             InitializeCharacterBodyAndModel();
             InitializeCharacterMaster();
 
             InitializeEntityStateMachine();
             InitializeSkills();
+            InitializeComponents();
 
             InitializeHitboxes();
             InitializeHurtboxes();
 
             InitializeSkins();
             InitializeItemDisplays();
+ 
 
             InitializeDoppelganger("Merc");
         }
@@ -57,6 +60,8 @@ namespace Quo_Gin.Modules.Characters
         }
 
         protected virtual void InitializeCharacterMaster() { }
+
+        public abstract void InitializeComponents();
         protected virtual void InitializeEntityStateMachine()
         {
             bodyPrefab.GetComponent<EntityStateMachine>().mainStateType = new EntityStates.SerializableEntityStateType(characterMainState);

@@ -1,108 +1,82 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using UnityEngine.Networking;
+using UnityEngine;
 using RoR2;
-
+using UnityEngine.Networking;
+using Quo_Gin.Modules;
 
 namespace Quo_Gin.Componenets
 {
-    internal class SuperHandler : NetworkBehaviour
+    internal class SuperHandler : ResourceHandler, IOnKilledOtherServerReceiver
     {
-        private float superRegenPerSec = .5f;
-        private float baseSuperRegenPerSec = .5f;
-        private float maxSuper = 100f;
-        private float minSuperToCast = 100f;
-        private float currentSuper;
-        private float bonusSuperRegen;
-        private SkillLocator skillLocator;
-        private float superReductionSpecial = 3f;
-        private float lowestMinSuper = 20f;
-        public void Init()
+        private int currentOrbOfLightFill;
+        private int fillNeededToSpawnOrb = 10;
+        private int fillPerElite = 10;
+        private int fillPerBoss = 40;
+        private int superRefillPerOrb = 20;
+        private int maxFillPerKill = 80;
+
+        public override void Start()
         {
-            if (base.hasAuthority)
+            base.Start();
+            this.currentOrbOfLightFill = 0;
+        }
+
+        public void addOrbFill(float numOfOrbs)
+        {
+            base.addCurrentResource(numOfOrbs*superRefillPerOrb);
+        }
+        public void OnKilledOtherServer(DamageReport damageReport)
+        {
+            if (NetworkServer.active)
             {
-                this.skillLocator = base.GetComponent<SkillLocator>();
-                InitializeSuperHandler();
-            }
-        }
-        private void InitializeSuperHandler()
-        {
-            this.recalculateMinSuperToCast();
-            this.setCurrentSuper(20f);
+                CharacterBody attackerBody = damageReport.attackerBody;
+                CharacterBody victimBody = damageReport.victimBody;
 
-        }
+                if (attackerBody.teamComponent.teamIndex == base.owner.teamComponent.teamIndex && attackerBody.HasBuff(Buffs.wellOfRadianceBuff)) 
+                {
+                    Log.Debug("Adding orbFill");
+                    this.currentOrbOfLightFill += (int)Mathf.Clamp( 3* Mathf.Log(victimBody.level, 2),1, maxFillPerKill);
 
-        public float getMaxSuper()
-        {
-            return this.maxSuper;
-        }
-        public float getCurrentSuper() 
-        {
-            return this.currentSuper;
-        }
-        public float getMinSuperToCast()
-        {
-            return this.minSuperToCast;
-        }
-        public float getTotalSuperRegen()
-        {
-            return this.superRegenPerSec + this.bonusSuperRegen;
-        }
-        public float getCurrentSuperRatio()
-        {
-            return this.currentSuper / this.minSuperToCast;
-        }
-        public float getMinSuperToCastRatio()
-        {
-            return this.currentSuper / this.minSuperToCast;
-        }
-        public void setCurrentSuper(float superVal)
-        {
-            this.currentSuper = Math.Min(Math.Max(0f, superVal), this.getMaxSuper());
-        }
-        public void setMinSuperToCast(float superVal) 
-        {
-            this.minSuperToCast = Math.Min(lowestMinSuper, superVal);
-        }
-        public void addCurrentSuper(float superVal)
-        {
-            this.currentSuper = Math.Min(this.currentSuper + superVal, this.maxSuper);
-        }
-        public void reduceMinSuperToCast(float superVal)
-        {
-            this.minSuperToCast = Math.Max(lowestMinSuper, minSuperToCast - superVal);
-        }
-
-        public void refillSuperMax(float superPercent = 100f)
-        {
-            this.addCurrentSuper(this.maxSuper * superPercent / 100f);
-        }
+                    if (victimBody.isElite) { this.currentOrbOfLightFill += fillPerElite; }
+                    if (victimBody.isBoss) { this.currentOrbOfLightFill += fillPerBoss; }
 
 
-        private float getMinSuperReductionFromSkill()
-        {
-            return superReductionSpecial * this.skillLocator.special.maxStock - 1;
-        }
+                    Log.Debug("Current orb fill " + this.currentOrbOfLightFill);
 
-        public void recalculateMinSuperToCast()
-        {
-            if (base.GetComponent<CharacterBody>())
-            {
-                this.setMinSuperToCast(this.maxSuper - getMinSuperReductionFromSkill());
+                }
+
+                if (this.currentOrbOfLightFill >= this.fillNeededToSpawnOrb)
+                {
+                    for (int i = this.currentOrbOfLightFill; i >= fillNeededToSpawnOrb; i -= this.fillNeededToSpawnOrb)
+                    {
+                        Log.Debug("Spawing Orb : ");
+                        this.currentOrbOfLightFill -= fillNeededToSpawnOrb;
+                        GameObject orbObject = UnityEngine.Object.Instantiate<GameObject>(LegacyResourcesAPI.Load<GameObject>("Prefabs/NetworkedObjects/AmmoPack"), victimBody.gameObject.transform.position, UnityEngine.Random.rotation);
+                        UnityEngine.Object.Destroy(orbObject.GetComponent<AmmoPickup>());
+                        OrbOfLightPickup orbPickup = orbObject.AddComponent<OrbOfLightPickup>();
+                        orbPickup.baseObject = orbObject;
+                        orbPickup.teamIndex = attackerBody.teamComponent.teamIndex;
+                        orbPickup.owner = this.owner;
+
+                        NetworkServer.Spawn(orbObject);
+                    } 
+                }
             }
         }
 
-        public void Hook_Superhandler()
+        public static void ApplyOrbOfLight(Collider other)
         {
-            On.RoR2.CharacterBody.RecalculateStats += CharacterBody_RecalculateStats;
-        }
-        private void CharacterBody_RecalculateStats(On.RoR2.CharacterBody.orig_RecalculateStats orig, CharacterBody self)
-        {
-            orig(self);
-            if (base.GetComponent<SuperHandler>() != null)
+            if (other.GetComponent<SuperHandler>())
             {
-                base.GetComponent<SuperHandler>().recalculateMinSuperToCast();
+                Log.Debug("has super");
+                other.GetComponent<SuperHandler>().addOrbFill(1);
+            }
+            else
+            {
+                Log.Debug("no super");
+                other.GetComponent<SkillLocator>().ApplyAmmoPack();
             }
         }
     }

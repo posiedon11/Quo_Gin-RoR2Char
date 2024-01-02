@@ -1,5 +1,7 @@
 ﻿using BepInEx;
+using IL.RoR2.UI;
 using Quo_Gin.Componenets;
+using Quo_Gin.Modules;
 using Quo_Gin.Modules.Survivors;
 using Quo_Gin.SkillStates;
 using R2API;
@@ -10,6 +12,7 @@ using System.ComponentModel;
 using System.Security;
 using System.Security.Permissions;
 using UnityEngine;
+using UnityEngine.UI;
 
 [module: UnverifiableCode]
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
@@ -43,7 +46,7 @@ namespace  Quo_Gin
         public const string DEVELOPER_PREFIX = "POSIEDON11";
 
         public static Quo_GinPlugin instance;
-
+        public static HUDManager hudmanager;
 
 
         public static DamageAPI.ModdedDamageType SunShotMark;
@@ -52,10 +55,12 @@ namespace  Quo_Gin
         {
             instance = this;
 
+            
             Quo_GinPlugin.SunShotMark = DamageAPI.ReserveDamageType();
             Quo_GinPlugin.ScorchMark = DamageAPI.ReserveDamageType();
-
+            
             Log.Init(Logger);
+           // instance.gameObject.AddComponent<HUDManager>();
             Modules.Tokens.AddTokens();
             Modules.Assets.Initialize(); // load assets and read config
             Modules.Config.ReadConfig();
@@ -74,22 +79,25 @@ namespace  Quo_Gin
 
             // now make a content pack and add it- this part will change with the next update
             new Modules.ContentPacks().Initialize();
-            
 
+            
             Hook();
+            //hudmanager =  gameObject.AddComponent<HUDManager>();
+             
         }
 
         private void Hook()
         {
             // run hooks here, disabling one is as simple as commenting out the line
             On.RoR2.CharacterBody.RecalculateStats += CharacterBody_RecalculateStats;
+            //On.RoR2.UI.HUD.Awake += HUD_Awake;
             //Hook_SunShot();
             //new ScorchDebuff().Hook_ScorchDebuff();
             //new SunShotMark().Hook_SunShot();
             //new AscendingDawnBuff().Hook_AscendingDawn();
         }
 
-        private void CharacterBody_RecalculateStats(On.RoR2.CharacterBody.orig_RecalculateStats orig, CharacterBody self)
+       private void CharacterBody_RecalculateStats(On.RoR2.CharacterBody.orig_RecalculateStats orig, CharacterBody self)
         {
             orig(self);
 
